@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduNexa Hub - Premium State Learning Platform</title>
+  
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <style>
+    :root {
+      --glow-color: rgba(99, 102, 241, 0.15);
+      --glass-bg: rgba(15, 23, 42, 0.95);
+      --glass-border: rgba(99, 102, 241, 0.2);
+    }
+
+    body {
+      background-color: #0b1329; /* Dark Indigo/Slate layout */
+      color: #f1f5f9; /* High contrast text */
+    }
+
+    .glass-panel {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    aside {
+      background-color: #090d16 !important;
+      border-right: 1px solid #1e293b !important;
+    }
+
+    /* Legible high-contrast dark cards */
+    .light-card {
+      background-color: #111827 !important;
+      border: 1px solid #1e293b !important;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    input, textarea, select {
+      background-color: #090d16 !important;
+      border: 1px solid #334155 !important;
+      color: #f8fafc !important;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #6366f1 !important;
+      outline: none;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-slideUp {
+      animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes scaleUp {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .animate-scaleUp {
+      animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #090d16;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #1e293b;
+      border-radius: 9999px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #4f46e5;
+    }
+  </style>
+</head>
+<body class="bg-[#0b1329] text-[#f1f5f9] font-sans selection:bg-indigo-500 selection:text-white">
+
+  <div id="toast-alert" class="fixed bottom-5 right-5 z-50 hidden transition-all duration-300 animate-slideUp">
+    <div id="toast-box" class="p-4 rounded-xl shadow-lg flex items-center space-x-2 border text-white bg-emerald-600 border-emerald-700">
+      <i id="toast-icon" class="fa-solid fa-circle-check"></i>
+      <span id="toast-message" class="text-sm font-semibold"></span>
+    </div>
+  </div>
+
+  <div id="delete-confirm-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center p-4 hidden">
+    <div class="bg-[#111827] border border-red-500/30 rounded-2xl shadow-2xl max-w-md w-full p-6 relative text-left animate-scaleUp">
+      <div class="text-center space-y-3">
+        <div class="mx-auto w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center text-red-500">
+          <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+        </div>
+        <h3 class="text-lg font-black text-white">Ensure Deletion</h3>
+        <p class="text-xs text-slate-300 leading-relaxed">
+          Are you sure you want to permanently delete <strong id="delete-item-title" class="text-red-400"></strong>? This operational action cannot be undone.
+        </p>
+      </div>
+      <div class="flex space-x-3 mt-6">
+        <button onclick="cancelDelete()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold py-2.5 rounded-xl transition-all">
+          Cancel
+        </button>
+        <button onclick="confirmDelete()" class="flex-1 bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2.5 rounded-xl transition-all shadow-md">
+          Yes, Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="premium-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex justify-center items-center p-4 overflow-y-auto hidden">
+    <div class="bg-[#111827] border border-indigo-500/30 rounded-2xl shadow-2xl max-w-2xl w-full p-6 relative text-left animate-scaleUp">
+      
+      <button onclick="closePremiumModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-200">
+        <i class="fa-solid fa-xmark text-xl"></i>
+      </button>
+
+      <div id="modal-step-lead" class="space-y-6">
+        <div class="text-center space-y-2">
+          <div class="mx-auto w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-400">
+            <i class="fa-solid fa-star text-xl animate-pulse"></i>
+          </div>
+          <h3 class="text-xl font-black text-white">Join EduNexa Premium Club</h3>
+          <p class="text-xs text-slate-300">Syllabus crash prep courses, ad-free downloads, and continuous expert support channels.</p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-2.5">
+          <button type="button" onclick="selectPlanTier('Silver')" id="btn-tier-Silver" class="p-3 rounded-xl border text-center transition-all bg-[#090d16] border-slate-700 text-slate-300 hover:border-indigo-400">
+            <span class="text-[10px] block uppercase tracking-wider">Silver</span>
+            <span class="text-sm font-bold block">₹149</span>
+          </button>
+          <button type="button" onclick="selectPlanTier('Gold')" id="btn-tier-Gold" class="p-3 rounded-xl border text-center transition-all bg-indigo-600 border-indigo-400 text-white font-black shadow-md">
+            <span class="text-[10px] block uppercase tracking-wider">Gold</span>
+            <span class="text-sm font-bold block">₹299</span>
+          </button>
+          <button type="button" onclick="selectPlanTier('Platinum')" id="btn-tier-Platinum" class="p-3 rounded-xl border text-center transition-all bg-[#090d16] border-slate-700 text-slate-300 hover:border-indigo-400">
+            <span class="text-[10px] block uppercase tracking-wider">Platinum</span>
+            <span class="text-sm font-bold block">₹499</span>
+          </button>
+        </div>
+
+        <div class="bg-indigo-950/40 border border-indigo-500/20 p-4 rounded-xl space-y-2">
+          <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest block">
+            Uniquely Unlocked with <span id="display-selected-plan-name" class="underline">Gold</span> Tier:
+          </span>
+          <div id="dynamic-benefits-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] text-slate-300">
+            <div><i class="fa-solid fa-circle-check text-indigo-400 mr-1"></i> Interactive Live Classes</div>
+            <div><i class="fa-solid fa-circle-check text-indigo-400 mr-1"></i> Chapter-wise Sample Papers</div>
+          </div>
+        </div>
+
+        <form id="lead-submission-form" onsubmit="handleLeadFormSubmit(event)" class="space-y-3.5">
+          <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">Fill Contact Details to Choose Payment Plan</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="text-[10px] font-bold text-slate-400 block mb-1">Student Full Name</label>
+              <input type="text" id="lead-name" class="w-full text-xs rounded-lg p-2.5 outline-none focus:border-indigo-500" required>
+            </div>
+            <div>
+              <label class="text-[10px] font-bold text-slate-400 block mb-1">Email Address</label>
+              <input type="email" id="lead-email" class="w-full text-xs rounded-lg p-2.5 outline-none focus:border-indigo-500" required>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="text-[10px] font-bold text-slate-400 block mb-1">Phone Number</label>
+              <input type="tel" id="lead-phone" class="w-full text-xs rounded-lg p-2.5 outline-none focus:border-indigo-500" required>
+            </div>
+            <div>
+              <label class="text-[10px] font-bold text-slate-400 block mb-1">WhatsApp Number</label>
+              <input type="tel" id="lead-whatsapp" class="w-full text-xs rounded-lg p-2.5 outline-none focus:border-indigo-500">
+            </div>
+            <div>
+              <label class="text-[10px] font-bold text-slate-400 block mb-1">Class / Batch</label>
+              <input type="text" id="lead-class" class="w-full text-xs rounded-lg p-2.5 outline-none focus:border-indigo-500" required>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white font-bold py-3 rounded-xl transition-all shadow-md flex items-center justify-center gap-1">
+            <i class="fa-solid fa-lock text-xs mr-1"></i>
+            <span>Securely Pay via Razorpay Integration</span>
+          </button>
+        </form>
+
+        <div class="bg-indigo-950/40 p-3 rounded-xl border border-indigo-900/30">
+          <p class="text-[11px] text-slate-300 italic">"I unlocked Silver premium access through our referral rewards system. The past entrance papers and physics prep notes have been incredibly helpful!"</p>
+          <span class="text-[9px] text-slate-400 block text-right mt-1">- Karthika, Plus Two Science Student, Kochi</span>
+        </div>
+      </div>
+
+      <div id="modal-step-success" class="text-center space-y-6 py-6 hidden animate-slideUp">
+        <div class="mx-auto w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-400">
+          <i class="fa-solid fa-circle-check text-3xl"></i>
+        </div>
+        <div class="space-y-2">
+          <h3 class="text-lg font-black text-white">Application Received Successfully!</h3>
+          <p class="text-xs text-slate-300">Our admissions and premium enrollment team has registered your interest.</p>
+        </div>
+
+        <div class="space-y-3 pt-2">
+          <p class="text-[11px] text-slate-400">Click below to communicate directly with our academic advisors via WhatsApp:</p>
+          <a id="whatsapp-direct-link" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-xl transition-all shadow">
+            <i class="fa-brands fa-whatsapp text-lg"></i>
+            <span>Contact Support via WhatsApp</span>
+          </a>
+        </div>
+
+        <div class="pt-4">
+          <button onclick="closePremiumModal()" class="text-xs text-slate-500 underline">
+            Go Back to Lounge
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="min-h-screen bg-[#0b1329] text-slate-100 flex flex-col md:flex-row font-sans">
+
+    <div class="md:hidden bg-[#090d16] p-4 flex justify-between items-center sticky top-0 z-20 border-b border-indigo-950">
+      <div class="flex items-center space-x-2 text-indigo-400 font-bold text-xl cursor-pointer" onclick="navigateToTab('dashboard')">
+        <i class="fa-solid fa-book-open"></i>
+        <span>EduNexa Hub</span>
+      </div>
+      <button onclick="toggleMobileSidebar()" class="text-slate-400">
+        <i id="mobile-menu-icon" class="fa-solid fa-bars text-xl"></i>
+      </button>
+    </div>
+
+    <aside id="sidebar" class="hidden md:block md:w-64 bg-[#090d16] border-r border-indigo-955 h-screen sticky top-0 flex-shrink-0 p-4 shadow-sm overflow-y-auto z-10">
+      <div class="hidden md:flex items-center space-x-2 text-indigo-400 font-bold text-lg mb-6 px-2 mt-2 cursor-pointer select-none" onclick="navigateToTab('dashboard')">
+        <i class="fa-solid fa-book-open animate-pulse text-indigo-400"></i>
+        <span>EduNexa Hub</span>
+      </div>
+
+      <nav id="nav-container" class="space-y-1 text-sm font-medium">
+        <button onclick="navigateToTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg bg-indigo-600/20 text-indigo-400 font-bold transition-all text-left">
+          <i class="fa-solid fa-gauge"></i> <span>Dashboard</span>
+        </button>
+        <button onclick="navigateToTab('ai-notes')" id="nav-ai-notes" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all text-left">
+          <i class="fa-solid fa-sparkles"></i> <span>AI Study Notes</span>
+        </button>
+        <button onclick="navigateToTab('papers')" id="nav-papers" class="w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all text-left">
+          <i class="fa-solid fa-file-pdf"></i> <span>Model Papers</span>
+        </button>
+      </nav>
+
+      <div id="sidebar-ad-placement" class="px-2 pt-4 hidden md:block"></div>
+
+      <div id="premium-sidebar-widget" class="mt-6 p-4 bg-gradient-to-br from-indigo-950 to-indigo-900 rounded-xl border border-indigo-850 text-left">
+        <div class="flex items-center space-x-1.5 text-amber-400 font-bold text-xs mb-1">
+          <i class="fa-solid fa-star"></i>
+          <span>Premium Membership</span>
+        </div>
+        <p class="text-[11px] text-slate-300 mb-3 font-semibold">No Ads, unlimited study resources, and master revision support.</p>
+        <button onclick="openPremiumModal()" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 text-xs font-bold py-2 rounded-lg transition-all shadow">
+          Upgrade Plan
+        </button>
+      </div>
+    </aside>
+
+    <main class="flex-1 p-4 md:p-6 overflow-y-auto max-w-6xl mx-auto w-full flex flex-col justify-between">
+      
+      <div class="space-y-6">
+        
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 bg-[#090d16] p-4 rounded-xl border border-indigo-950 gap-4 text-left">
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span id="role-badge" class="text-[9px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
+                Student Lounge
+              </span>
+              <span class="text-xs text-slate-300 font-bold">Representative Director: <strong class="text-indigo-400">Platform Director</strong></span>
+            </div>
+            <h1 id="active-tab-title" class="text-xl font-black text-white capitalize flex items-center mt-1">
+              Dashboard
+            </h1>
+          </div>
+
+          <div class="flex items-center space-x-2">
+            <span id="premium-status-indicator" class="hidden flex items-center bg-amber-500/20 text-amber-400 px-3 py-1 rounded-full text-xs font-bold border border-amber-500/30">
+              <i class="fa-solid fa-star mr-1 text-amber-500 animate-spin"></i> Premium: Gold
+            </span>
+
+            <div class="flex items-center space-x-2 bg-slate-950 border border-indigo-955 p-1.5 rounded-lg text-right">
+              <div>
+                <p id="profile-full-name" class="text-xs font-bold text-slate-200">Rahul Nair</p>
+                <p id="profile-sub-detail" class="text-[9px] text-amber-400 font-bold">Points: 0 Pts</p>
+              </div>
+              <button onclick="handleProfileLogout()" class="text-[10px] bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white px-2.5 py-1.5 rounded font-bold transition-all ml-2 border border-slate-700">
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-dashboard" class="tab-view space-y-6 text-left">
+          <div id="dashboard-auth-block" class="bg-[#090d16] p-6 rounded-2xl border border-indigo-950 max-w-md mx-auto space-y-4 shadow-sm text-left">
+            <div class="text-center">
+              <i class="fa-solid fa-book-open text-indigo-400 text-3xl mb-2"></i>
+              <h2 class="text-lg font-bold text-white">Welcome to the Student Lounge</h2>
+              <p class="text-xs text-slate-300">Access targeted Kerala DHSE & SCERT board past resources easily.</p>
+            </div>
+
+            <div class="flex border-b border-indigo-950">
+              <button onclick="changeAuthMode('login')" id="btn-auth-login" class="flex-1 pb-2 text-sm font-bold border-b-2 border-indigo-500 text-indigo-400">
+                Quick Login
+              </button>
+              <button onclick="changeAuthMode('register')" id="btn-auth-register" class="flex-1 pb-2 text-sm font-bold text-slate-400">
+                Register Account
+              </button>
+            </div>
+
+            <form id="auth-login-form" onsubmit="handleStudentLoginSubmit(event)" class="space-y-3 text-left text-xs">
+              <div>
+                <label class="font-bold text-slate-300">Username ID</label>
+                <input type="text" id="login-username" placeholder="e.g. rahul_nair" class="w-full bg-[#0b1329] border border-indigo-950 rounded-lg p-2.5 outline-none focus:border-indigo-500 text-white mt-1">
+              </div>
+              <div>
+                <label class="font-bold text-slate-300">Password</label>
+                <input type="password" id="login-password" placeholder="••••••••" class="w-full bg-[#0b1329] border border-indigo-950 rounded-lg p-2.5 outline-none focus:border-indigo-500 text-white mt-1">
+              </div>
+              <div class="flex items-center space-x-2 pt-1">
+                <input type="checkbox" id="remember-me" class="rounded text-indigo-600 bg-slate-900 border-slate-700 cursor-pointer" checked>
+                <label for="remember-me" class="text-[11px] text-slate-300 font-semibold cursor-pointer select-none">Remember Me</label>
+              </div>
+              <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors shadow">
+                Log In
+              </button>
+            </form>
+
+            <form id="auth-register-form" onsubmit="handleStudentRegisterSubmit(event)" class="space-y-3 text-left text-xs hidden">
+              <div>
+                <label class="font-bold text-slate-300">Desired Username ID</label>
+                <input type="text" id="register-username" placeholder="e.g. jishnu_tvm" class="w-full bg-[#0b1329] border border-indigo-950 rounded-lg p-2.5 outline-none focus:border-indigo-500 text-white mt-1" required>
+              </div>
+              <div>
+                <label class="font-bold text-slate-300">Full Student Name</label>
+                <input type="text" id="register-name" placeholder="e.g. Jishnu Prasad" class="w-full bg-[#0b1329] border border-indigo-950 rounded-lg p-2.5 outline-none focus:border-indigo-500 text-white mt-1" required>
+              </div>
+              <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2.5 rounded-lg transition-colors shadow">
+                Register & Enter
+              </button>
+            </form>
+          </div>
+
+          <div id="dashboard-secured-view" class="space-y-6">
+            <div class="bg-gradient-to-r from-indigo-950 to-indigo-900 text-white p-6 rounded-2xl relative overflow-hidden shadow-md text-left">
+              <h2 class="text-xl md:text-2xl font-black flex items-center gap-1.5">
+                <i class="fa-solid fa-wand-magic-sparkles text-amber-350 animate-pulse"></i>
+                <span>Let's Start Learning, <span id="hero-display-name">Rahul Nair</span>!</span>
+              </h2>
+              <p class="text-xs text-indigo-100 leading-relaxed mt-2">
+                Syllabus masterclasses, premium mock exams, dynamic study note generator, and referral reward systems are now structured in one comprehensive space.
+              </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-[#090d16] p-5 rounded-2xl border border-indigo-955 space-y-3 shadow-md">
+                <h3 class="text-xs font-black text-indigo-400 uppercase tracking-wider">Platform Safety Guideline</h3>
+                <p class="text-xs text-slate-300">Keep standard academic community guidelines clean and active during public learning interaction groups.</p>
+              </div>
+
+              <div class="bg-[#090d16] p-5 rounded-2xl border border-indigo-955 space-y-3 flex flex-col justify-between shadow-md">
+                <div>
+                  <h3 class="text-xs font-black text-indigo-400 uppercase tracking-wider">Free Premium Access Referral</h3>
+                  <p class="text-xs text-slate-300 mt-1">Invite friends and collect 450 points to instantly redeem 1 Month of Silver Plan for completely Free.</p>
+                </div>
+                <div class="bg-slate-950 p-3 rounded-xl border border-indigo-900/30 text-center mt-2">
+                  <span id="dashboard-referral-code" class="text-sm font-black text-indigo-400 font-mono tracking-widest block">RAHUL150</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-ai-notes" class="tab-view space-y-6 text-left hidden">
+          <div class="bg-[#090d16] p-6 rounded-2xl border border-indigo-955 space-y-4 shadow-md">
+            <h2 class="text-base font-bold text-white">StudyVerse Local AI Research Assistant</h2>
+            <p class="text-xs text-slate-300 font-semibold">Type a topic keyword to instantly render high-quality study outlines.</p>
+            <div class="flex flex-col sm:flex-row gap-2">
+              <input type="text" id="ai-prompt-input" placeholder="E.g., Wave optics Huygens derivation..." class="flex-1 text-xs rounded-lg p-2.5 outline-none">
+              <button onclick="triggerAINotesGen()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-5 py-2.5 rounded-lg flex items-center gap-1">
+                <i class="fa-solid fa-sparkles text-amber-300"></i> Generate
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="tab-papers" class="tab-view space-y-6 text-left hidden">
+          <div class="bg-[#090d16] p-6 rounded-2xl border border-indigo-955 space-y-4 shadow-md">
+            <h2 class="text-base font-bold text-white">Kerala Board Mock Test Papers</h2>
+            <p class="text-xs text-slate-300">Download recent custom-designed engineering and medical board track sample exams.</p>
+            <div class="p-4 bg-slate-950 rounded-xl border border-slate-800 flex justify-between items-center">
+              <div>
+                <p class="text-xs font-bold text-white">DHSE Plus Two Physics Sample (2026)</p>
+                <p class="text-[10px] text-slate-400">File Type: PDF | Size: 2.4 MB</p>
+              </div>
+              <button onclick="openPremiumModal()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg font-bold">
+                Download
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // =========================================================================
+    // RAZORPAY INTEGRATION & ROUTING CONFIGURATIONS
+    // =========================================================================
+    const RAZORPAY_KEY_ID = "YOUR_RAZORPAY_KEY_ID"; 
+
+    let activeProfile = {
+      uid: "rahul_nair_123",
+      username: "rahul_nair",
+      name: "Rahul Nair",
+      email: "rahul@edunexa.com",
+      isPremium: false,
+      tier: "Free"
+    };
+
+    let selectedPlanTier = "Gold";
+    let selectedPlanAmount = 299; 
+
+    // Dynamic Navigation Routing Controller Engine
+    function navigateToTab(tabId) {
+      document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
+      const activeView = document.getElementById(`tab-${tabId}`);
+      if (activeView) activeView.classList.remove('hidden');
+
+      document.getElementById('active-tab-title').innerText = tabId.replace('-', ' ');
+
+      // Reset dynamic nav focus indicator color status links
+      ['dashboard', 'ai-notes', 'papers'].forEach(id => {
+        const btn = document.getElementById(`nav-${id}`);
+        if(btn) {
+          if(id === tabId) {
+            btn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg bg-indigo-600/20 text-indigo-400 font-bold transition-all text-left";
+          } else {
+            btn.className = "w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-slate-900 hover:text-slate-200 transition-all text-left";
+          }
+        }
+      });
+    }
+
+    function openPremiumModal() {
+      document.getElementById("premium-modal").classList.remove("hidden");
+      document.getElementById("modal-step-lead").classList.remove("hidden");
+      document.getElementById("modal-step-success").classList.add("hidden");
+    }
+
+    // Modal UI State Closures Trigger Action
+    function closePremiumModal() {
+      document.getElementById("premium-modal").classList.add("hidden");
+    }
+
+    function selectPlanTier(tier) {
+      selectedPlanTier = tier;
+      if (tier === 'Silver') selectedPlanAmount = 149;
+      else if (tier === 'Gold') selectedPlanAmount = 299;
+      else if (tier === 'Platinum') selectedPlanAmount = 499;
+      
+      ['Silver', 'Gold', 'Platinum'].forEach(t => {
+        const btn = document.getElementById(`btn-tier-${t}`);
+        if(btn) {
+          if(t === tier) {
+            btn.className = "p-3 rounded-xl border text-center transition-all bg-indigo-600 border-indigo-400 text-white font-black shadow-md";
+          } else {
+            btn.className = "p-3 rounded-xl border text-center transition-all bg-[#090d16] border-slate-700 text-slate-300 hover:border-indigo-400";
+          }
+        }
+      });
+      document.getElementById('display-selected-plan-name').innerText = tier;
+    }
+
+    // HANDLER FOR FORM SUBMISSION & PAYMENT GATEWAY TRIGGER
+    async function handleLeadFormSubmit(event) {
+      event.preventDefault(); 
+
+      const studentName = document.getElementById("lead-name").value;
+      const studentEmail = document.getElementById("lead-email").value;
+      const studentPhone = document.getElementById("lead-phone").value;
+      
+      const options = {
+        "key": RAZORPAY_KEY_ID,
+        "amount": (selectedPlanAmount * 100).toString(), 
+        "currency": "INR",
+        "name": "EduNexa Hub",
+        "description": `Premium ${selectedPlanTier} Plan Membership`,
+        "image": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/svgs/solid/book-open.svg",
+        "handler": async function (response) {
+          if (response.razorpay_payment_id) {
+            showToast("Payment Successful! Activating Premium...", "success");
+            
+            activeProfile.isPremium = true;
+            activeProfile.tier = selectedPlanTier;
+            
+            const indicator = document.getElementById("premium-status-indicator");
+            if (indicator) {
+              indicator.innerHTML = `<i class="fa-solid fa-star mr-1 text-amber-400 animate-pulse"></i> Premium: ${selectedPlanTier}`;
+              indicator.classList.remove("hidden");
+            }
+
+            document.getElementById("modal-step-lead").classList.add("hidden");
+            document.getElementById("modal-step-success").classList.remove("hidden");
+            
+            const messageString = window.encodeURIComponent(`Hi EduNexa Hub, I upgraded to Premium ${selectedPlanTier}. Payment ID: ${response.razorpay_payment_id}`);
+            document.getElementById("whatsapp-direct-link").href = `https://wa.me/917593062573?text=${messageString}`;
+          }
+        },
+        "prefill": {
+          "name": studentName || activeProfile.name,
+          "email": studentEmail || activeProfile.email,
+          "contact": studentPhone || ""
+        },
+        "theme": { "color": "#6366f1" },
+        "modal": {
+          "ondismiss": function() {
+            showToast("Payment window dismissed.", "error");
+          }
+        }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+    }
+
+    function showToast(message, type = "success") {
+      const toast = document.getElementById("toast-alert");
+      const box = document.getElementById("toast-box");
+      const msgSpan = document.getElementById("toast-message");
+      
+      if(!toast || !box || !msgSpan) return;
+      msgSpan.innerText = message;
+      
+      if(type === "error") {
+        box.className = "p-4 rounded-xl shadow-lg flex items-center space-x-2 border text-white bg-red-600 border-red-700";
+      } else {
+        box.className = "p-4 rounded-xl shadow-lg flex items-center space-x-2 border text-white bg-emerald-600 border-emerald-700";
+      }
+      
+      toast.classList.remove("hidden");
+      setTimeout(() => toast.classList.add("hidden"), 4000);
+    }
+
+    function toggleMobileSidebar() {
+      const sidebar = document.getElementById("sidebar");
+      sidebar.classList.toggle("hidden");
+    }
+
+    function changeAuthMode(mode) {
+      if(mode === 'login') {
+        document.getElementById("auth-login-form").classList.remove("hidden");
+        document.getElementById("auth-register-form").classList.add("hidden");
+      } else {
+        document.getElementById("auth-login-form").classList.add("hidden");
+        document.getElementById("auth-register-form").classList.remove("hidden");
+      }
+    }
+  </script>
+</body>
+</html>
